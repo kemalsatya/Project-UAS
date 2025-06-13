@@ -29,7 +29,7 @@ void bersihkanBuffer()
     }
 }
 
-bool validasi_nama_akun(char *username)
+bool user_validasi_nama_akun(char *username)
 {
     FILE *file = fopen(FILE_AKUN, "r");
     if (file == NULL)
@@ -55,6 +55,8 @@ bool validasi_nama_akun(char *username)
     return false;
 }
 
+////////////////////////////////////////////////////////
+
 /*
 ## sistem penyimpanan internal untuk :
     1. Data register, login user dan log in admin -> list_akun.txt
@@ -72,7 +74,8 @@ bool validasi_nama_akun(char *username)
 ##
 */
 
-// struct penting /////////////////////////////////////////////////////////////
+//// deklarasi dan inisialisasi struct /////////////////////////////////////////////////////////////////
+
 typedef struct pesanan
 {
     char nama_akun[MAX_LENGTH];
@@ -120,6 +123,8 @@ void init_pesanan(kumpulan_pesanan *L)
     printf("\ninit berhasil\n");
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void sistem_load_wahana_dari_file(kumpulan_wahana *L, kumpulan_wahana *L_sorted);
 void sistem_load_pesanan_dari_file(kumpulan_pesanan *L);
 
@@ -152,7 +157,8 @@ void admin_edit_flight(kumpulan_wahana *L_sorted);
 void free_wahana_list(kumpulan_wahana *L);
 void free_pesanan_list(kumpulan_pesanan *L);
 
-// Helper untuk cek jawaban soal Kruskal dan Dijkstra
+////// Helper untuk cek jawaban soal Kruskal dan Dijkstra ///////////////////////////////////////////////////////
+
 bool user_cek_jawaban_kruskal(int jawaban)
 {
     // Bobot MST yang benar: edge dengan bobot 1 (A-C), 2 (B-C), 3 (C-D) = total 6
@@ -165,7 +171,7 @@ bool user_cek_jawaban_dijkstra(int jawaban)
     return jawaban == 4;
 }
 
-void user_simulate_preparation();
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // sorting  //////////
 void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kumpulan_wahana *sorted);
@@ -176,6 +182,8 @@ void admin_transversal_add_wahana_baru(kumpulan_wahana *L_sorted, wahana *baru);
 void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role);
 void user_pisahkan_pesanan(kumpulan_pesanan *L, kumpulan_pesanan *L_user, char *nama);
 ////////////////////
+
+void user_simulate_preparation();
 
 int tampilan_whoareu()
 {
@@ -292,7 +300,7 @@ void user_create_account()
         fgets(input_nama, sizeof(input_nama), stdin);
         hapusNewline(input_nama);
 
-        if (validasi_nama_akun(input_nama))
+        if (user_validasi_nama_akun(input_nama))
         {
             printf("\nNama sudah terdaftar. Coba masukan nama lain.\n");
         }
@@ -787,7 +795,6 @@ void admin_hapus_wahana(kumpulan_wahana *L_sorted, int hapus)
 }
 
 // selection sorting ////////////////////////////
-
 void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kumpulan_wahana *sorted)
 {
     wahana *current = unsorted->first;
@@ -837,6 +844,8 @@ void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kum
         min->next = NULL;
     }
 }
+
+////////////////////////////////////////////////////
 
 void admin_transversal_add_wahana_baru(kumpulan_wahana *L_sorted, wahana *baru)
 {
@@ -922,6 +931,7 @@ void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role)
     }
 }
 
+// refresh linked list wahana sorted
 void sistem_empty_sorted(kumpulan_wahana *L_sorted)
 {
     wahana *current = L_sorted->first, *temp;
@@ -998,7 +1008,7 @@ void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
 
     FILE *file = fopen(FILE_PESANAN, "r");
 
-    // Jika file tidak ada, buat baru
+    // kalau file tidak ada, buat baru
     if (!file)
     {
         printf("\nFile %s tidak ditemukan. Membuat file baru.\n", FILE_PESANAN);
@@ -1015,7 +1025,7 @@ void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
 
     while (fgets(baris, sizeof(baris), file))
     {
-        // Skip empty lines
+        // Skip baris kosong
         if (strlen(baris) <= 1)
             continue;
 
@@ -1166,7 +1176,7 @@ void user_book_flight(kumpulan_wahana sorted, kumpulan_pesanan *L, kumpulan_pesa
             }
             baru = NULL;
 
-            // simpan di linked list bukan user
+            // simpan di linked list pesanan utama
             pesanan *p_global = (pesanan *)malloc(sizeof(pesanan));
             *p_global = *p_user;
             p_global->next = NULL;
