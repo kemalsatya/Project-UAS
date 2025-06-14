@@ -7,6 +7,8 @@
 #define MAX_CEK_AKUN 50
 #define MAX_EXPLORASI 10
 
+#define NAMA_WAHANA "Stellaris"
+
 #define FILE_AKUN "data_akun.txt"
 #define FILE_WAHANA "data_wahana.txt"
 #define FILE_PESANAN "data_pesanan.txt"
@@ -190,7 +192,7 @@ int tampilan_whoareu()
     int ans = -1;
     while (ans > 3 || ans < 0)
     {
-        printf("\nSelamat datang di Antacha\n");
+        printf("\nSelamat datang di %s\n", NAMA_WAHANA);
         printf("Anda datang sebagai siapa ?\n");
         printf("1. User\n2. Admin\n3. Keluar program\n[1/2/3]\n");
         printf("\n== ");
@@ -213,7 +215,7 @@ int tampilan_after_whoareu()
     int ans = -1;
     while (ans < 0 || ans > 3)
     {
-        printf("\nSelamat datang di Antacha\n");
+        printf("\nSelamat datang di %s\n", NAMA_WAHANA);
         printf("Pilih salah satu\n\n");
         printf("1. Login\n2. Buat akun\n3. Kembali\n\n=== ");
         scanf("%i", &ans);
