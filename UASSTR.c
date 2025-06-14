@@ -120,7 +120,7 @@ void init_pesanan(kumpulan_pesanan *L)
     L->first = NULL;
     L->last = NULL;
     L->total_pesanan = 0;
-    printf("\ninit berhasil\n");
+    // printf("\ninit berhasil\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ void sistem_sync_to_file(kumpulan_wahana *L_sorted, kumpulan_pesanan *p, int pil
 void ask_for_sync(kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
 {
     int ans;
-    printf("\nDo you want to sync file before leave ?\n[1 = yes]\n== ");
+    printf("\nApakah ingin melakukan sinkronisasi file sebelum keluar ?\n[1 = ya]\n== ");
     scanf("%i", &ans);
     if (ans == 1)
     {
@@ -190,9 +190,9 @@ int tampilan_whoareu()
     int ans = -1;
     while (ans > 3 || ans < 0)
     {
-        printf("\nWelcome to Antacha\n");
-        printf("Who are you ?\n");
-        printf("1. User\n2. Admin\n3. Exit program\n[1/2/3]\n");
+        printf("\nSelamat datang di Antacha\n");
+        printf("Anda datang sebagai siapa ?\n");
+        printf("1. User\n2. Admin\n3. Keluar program\n[1/2/3]\n");
         printf("\n== ");
         scanf("%i", &ans);
         bersihkanBuffer();
@@ -213,9 +213,9 @@ int tampilan_after_whoareu()
     int ans = -1;
     while (ans < 0 || ans > 3)
     {
-        printf("\nWelcome to Antacha\n");
-        printf("Choose one\n\n");
-        printf("1. log in\n2. Create account\n3. Back\n\n=== ");
+        printf("\nSelamat datang di Antacha\n");
+        printf("Pilih salah satu\n\n");
+        printf("1. Login\n2. Buat akun\n3. Kembali\n\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
 
@@ -329,16 +329,16 @@ void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, 
     {
         int book_status = 0;
         int hapus = 0;
-        printf("\nWelcome, user.\n");
-        printf("Your upcoming explorations\n");
+        printf("\nSelamat Datang, %s.\n", nama_akun_user);
+        printf("Wahana penerbangan anda mendatang :\n");
 
         user_tampilkan_pesanan(w_sorted, L_user, nama_akun_user);
 
-        printf("\n1. See upcoming flight's\n");
-        printf("2. Cancel your flight\n");
-        printf("3. Simulate preparation\n");
+        printf("\n1. Lihat penerbangan mendatang\n");
+        printf("2. Batalkan penerbangan anda\n");
+        printf("3. Lakukan simulasi persiapan penerbangan\n");
         printf("4. Log out\n");
-        printf("5. Exit\n\n=== ");
+        printf("5. Keluar\n\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
 
@@ -346,7 +346,7 @@ void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, 
         {
         case 1:
             sistem_tampilkan_wahana_sorted(w_sorted, 1);
-            printf("\nDo you want to book ?\n[1 = yes]\n== ");
+            printf("\nApakah anda ingin memesan ?\n[1 = yes]\n== ");
             scanf("%d", &book_status);
             bersihkanBuffer();
             user_book_flight(*w_sorted, L, L_user, book_status, nama_akun_user);
@@ -382,18 +382,18 @@ void dashboard_admin(int *layer, kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
     do
     {
         int hapus = -1;
-        printf("\nWelcome, officer.\n");
-        printf("upcoming explorations\n\n");
+        printf("\nSelamat datang, officer.\n");
+        printf("Wahana penerbangan anda mendatang :\n\n");
 
         sistem_tampilkan_wahana_sorted(L_sorted, 2);
 
-        printf("\n1. Add flight\n");
-        printf("2. Remove flight\n");
-        printf("3. Edit flight\n");
-        printf("4. Execute flight\n");
-        printf("5. Sync flight Data\n");
+        printf("\n1. Tambah wahana penerbangan\n");
+        printf("2. Hapus wahana penerbangan\n");
+        printf("3. Edit wahana penerbangan\n");
+        printf("4. Eksekusi wahana penerbangan\n");
+        printf("5. Sinkronisasi data wahana penerbangan\n");
         printf("6. Log out\n");
-        printf("7. Exit\n\n=== ");
+        printf("7. Keluar\n\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
 
@@ -403,7 +403,7 @@ void dashboard_admin(int *layer, kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
             admin_tambah_wahana(L_sorted);
             break;
         case 2:
-            printf("\nWhich flight do you want to remove ?\n==");
+            printf("\nPilih wahana penerbangan mana yang ingin dihapus\n==");
             scanf("%i", &hapus);
             bersihkanBuffer();
             hapus_wahana_cancel_pesanan(1, NULL, NULL, L_sorted, hapus, NULL);
@@ -491,7 +491,7 @@ int main()
                     }
                     else
                     {
-                        printf("log in tidak valid");
+                        printf("\nlog in tidak valid");
                     }
                     break;
                 case 2:
@@ -500,6 +500,9 @@ int main()
                     break;
                 case 3:
                     layer--;
+                    break;
+                default:
+                    printf("\nPilihan tidak valid");
                     break;
                 }
             }
@@ -512,7 +515,8 @@ int main()
                 }
                 else
                 {
-                    printf("Log in tidak valid\n");
+                    printf("\nLog in tidak valid\n");
+                    layer--;
                 }
             }
         }
@@ -901,7 +905,7 @@ void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role)
 {
     if (L_sorted->first == NULL)
     {
-        printf("\nNo flights found\n\n");
+        printf("\nTidak ada wahana penerbangan yang ditemukan\n\n");
         return;
     }
 
@@ -912,9 +916,9 @@ void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role)
         while (current != NULL)
         {
             printf("%d. %s\n", ++count, current->nama);
-            printf("Desciption = %s\n", current->deskripsi);
-            printf("Date Launch = %s\n", current->tanggal);
-            printf("Seat Capasity Remain = %i\n\n", current->kursi);
+            printf("Deskripsi = %s\n", current->deskripsi);
+            printf("Tanggal peluncuran = %s\n", current->tanggal);
+            printf("Kapasitas kursi tersisa = %i\n\n", current->kursi);
             current = current->next;
         }
     }
@@ -923,9 +927,9 @@ void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role)
         while (current != NULL && current->kursi > 0)
         {
             printf("%d. %s\n", ++count, current->nama);
-            printf("Desciption = %s\n", current->deskripsi);
-            printf("Date Launch = %s\n", current->tanggal);
-            printf("Seat Capasity Remain = %i\n\n", current->kursi);
+            printf("Deskripsi = %s\n", current->deskripsi);
+            printf("Tanggal peluncuran = %s\n", current->tanggal);
+            printf("Kapasitas kursi tersisa = %i\n\n", current->kursi);
             current = current->next;
         }
     }
@@ -1065,7 +1069,7 @@ void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
 
     fclose(file);
 
-    printf("\nBerhasil memuat %i pesanan dari file %s\n", data_count, FILE_PESANAN);
+    // printf("\nBerhasil memuat %i pesanan dari file %s\n", data_count, FILE_PESANAN);
 }
 
 void user_pisahkan_pesanan(kumpulan_pesanan *L, kumpulan_pesanan *L_user, char *nama)
@@ -1115,9 +1119,9 @@ void user_tampilkan_pesanan(kumpulan_wahana *w_sorted, kumpulan_pesanan *L_user,
                 if (strcmp(current_wahana->nama, current_pesanan->nama_wahana) == 0)
                 {
                     printf("%d. %s\n", ++count, current_wahana->nama);
-                    printf("Desciption = %s\n", current_wahana->deskripsi);
-                    printf("Date Launch = %s\n", current_wahana->tanggal);
-                    printf("Seat booked = %i\n\n", current_pesanan->kursi_dipesan);
+                    printf("Deskripsi = %s\n", current_wahana->deskripsi);
+                    printf("Tanggal peluncuran = %s\n", current_wahana->tanggal);
+                    printf("Jumlah kursi dipesan = %i\n\n", current_pesanan->kursi_dipesan);
                 }
                 current_wahana = current_wahana->next;
             }
@@ -1185,13 +1189,13 @@ void user_book_flight(kumpulan_wahana sorted, kumpulan_pesanan *L, kumpulan_pesa
             {
                 L->first = p_global;
                 L->last = p_global;
-                printf("\nBerhasil menambahkan pesanan di urutan 1\n");
+                // printf("\nBerhasil menambahkan pesanan di urutan 1\n");
             }
             else
             {
                 L->last = p_global;
                 p_global->next = NULL;
-                printf("\nBerhasil menambahkan pesanan di urutan terakhir\n");
+                // printf("\nBerhasil menambahkan pesanan di urutan terakhir\n");
             }
 
             L->total_pesanan++;
@@ -1392,122 +1396,125 @@ void free_pesanan_list(kumpulan_pesanan *L)
 
 void user_simulate_preparation()
 {
-    int choice;
-    printf("\n===== MODUL SIMULASI LATIHAN ASTRONOT =====\n");
-    printf("\nSelamat datang, calon astronot! Hari ini Anda akan mengikuti dua latihan penting\n");
-    printf("untuk mengasah kemampuan navigasi dan pengoptimalan sistem dalam misi luar angkasa.\n");
-    printf("Pilih tantangan yang ingin Anda kerjakan:\n\n");
-
-    printf("1. Optimasi sistem kapal [algoritma Kruskal]\n");
-    printf("2. Mencari jalur tercepat [algoritma Dijkstra]\n");
-    printf("3. Kembali ke dashboard\n");
-    printf("=== ");
-    scanf("%d", &choice);
-    bersihkanBuffer();
-
-    switch (choice)
+    int choice = 0;
+    while (choice != 3)
     {
-    case 1:
-    {
-        printf("\n--- Tantangan 1: Optimasi sistem kapal luar angkasa ---\n");
-        printf("Detail misi: Kapal Anda memiliki beberapa modul yang saling terhubung.\n");
-        printf("Untuk menghemat daya dan meminimalkan kabel penghubung, Anda harus mencari\n");
-        printf("penghubung minimal yang tetap menghubungkan semua modul secara efisien.\n");
-        printf("Terapkan algoritma Kruskal untuk menentukan Minimum Spanning Tree (MST).\n\n");
+        printf("\n===== MODUL SIMULASI LATIHAN ASTRONOT =====\n");
+        printf("\nSelamat datang, calon astronot! Hari ini Anda akan mengikuti dua latihan penting\n");
+        printf("untuk mengasah kemampuan navigasi dan pengoptimalan sistem dalam misi luar angkasa.\n");
+        printf("Pilih tantangan yang ingin Anda kerjakan:\n\n");
 
-        printf("Visualisasi modul dan koneksi kapal:\n\n");
-        printf("      [A]\n");
-        printf("     /   \\\n");
-        printf("   4/     \\1\n");
-        printf("   /       \\\n");
-        printf(" [B]---2---[C]\n");
-        printf("   \\       /\n");
-        printf("    5\\   /3\n");
-        printf("      [D]\n\n");
-
-        printf("Daftar koneksi (arah tidak berpengaruh):\n");
-        printf("1) A - B : 4 unit kabel\n");
-        printf("2) A - C : 1 unit kabel\n");
-        printf("3) B - C : 2 unit kabel\n");
-        printf("4) B - D : 5 unit kabel\n");
-        printf("5) C - D : 3 unit kabel\n\n");
-
-        printf("Instruksi: Masukkan total jumlah unit kabel paling sedikit\n");
-        printf("yang diperlukan untuk menghubungkan semua modul tanpa membentuk siklus.\n");
-
-        int jawaban;
-        printf("\nJawaban Anda: ");
-        int cek = scanf("%d", &jawaban);
+        printf("1. Optimasi sistem kapal [algoritma Kruskal]\n");
+        printf("2. Mencari jalur tercepat [algoritma Dijkstra]\n");
+        printf("3. Kembali ke dashboard\n");
+        printf("=== ");
+        scanf("%d", &choice);
         bersihkanBuffer();
-        if (cek != 1)
-        {
-            printf("\nInput tidak valid. Masukkan angka bulat.\n");
-        }
-        else if (user_cek_jawaban_kruskal(jawaban))
-        {
-            printf("\nJawaban benar! Total kabel minimal adalah %d unit.\n", jawaban);
-        }
-        else
-        {
-            printf("\nJawaban salah. Jawaban yang benar adalah 6 unit kabel.\n");
-        }
-        printf("\nTekan Enter untuk kembali ke menu latihan...");
-        getchar();
-        break;
-    }
-    case 2:
-    {
-        printf("\n--- Tantangan 2: Menentukan jalur tercepat ke modul tujuan ---\n");
-        printf("Detail misi: Kendali misi ingin mengetahui jalur tercepat bagi shuttle suplai\n");
-        printf("yang berangkat dari Modul A menuju Modul D.\n");
-        printf("Berbagai rute memiliki waktu tempuh berbeda (dinyatakan dalam menit).\n");
-        printf("Gunakan algoritma Dijkstra untuk mencari jalur tercepat.\n\n");
 
-        printf("Visualisasi modul stasiun dan waktu tempuh:\n\n");
-        printf("      [A]\n");
-        printf("     /   \\\n");
-        printf("   1/     \\4\n");
-        printf("   /       \\\n");
-        printf(" [B]---2---[C]\n");
-        printf("   \\       /\n");
-        printf("    5\\   /1\n");
-        printf("      [D]\n\n");
-
-        printf("Daftar rute:\n");
-        printf("1) A -> B : 1 menit\n");
-        printf("2) A -> C : 4 menit\n");
-        printf("3) B -> C : 2 menit\n");
-        printf("4) B -> D : 5 menit\n");
-        printf("5) C -> D : 1 menit\n\n");
-
-        printf("Instruksi: Masukkan total waktu tercepat dari Modul A ke Modul D.\n");
-
-        int jawaban;
-        printf("\nJawaban Anda (dalam menit): ");
-        int cek = scanf("%d", &jawaban);
-        bersihkanBuffer();
-        if (cek != 1)
+        switch (choice)
         {
-            printf("\nInput tidak valid. Masukkan angka bulat.\n");
-        }
-        else if (user_cek_jawaban_dijkstra(jawaban))
+        case 1:
         {
-            printf("\nJawaban benar! Jalur tercepat memerlukan total waktu %d menit.\n", jawaban);
-        }
-        else
-        {
-            printf("\nJawaban salah. Jawaban yang benar adalah 4 menit.\n");
-        }
-        printf("\nTekan Enter untuk kembali ke menu latihan...");
-        getchar();
-        break;
-    }
-    case 3:
-        printf("\nKembali ke dashboard.\n");
-        break;
+            printf("\n--- Tantangan 1: Optimasi sistem kapal luar angkasa ---\n");
+            printf("Detail misi: Kapal Anda memiliki beberapa modul yang saling terhubung.\n");
+            printf("Untuk menghemat daya dan meminimalkan kabel penghubung, Anda harus mencari\n");
+            printf("penghubung minimal yang tetap menghubungkan semua modul secara efisien.\n");
+            printf("Terapkan algoritma Kruskal untuk menentukan Minimum Spanning Tree (MST).\n\n");
 
-    default:
-        printf("\nPilihan tidak valid. Silakan pilih 1, 2, atau 3.\n");
-        break;
+            printf("Visualisasi modul dan koneksi kapal:\n\n");
+            printf("      [A]\n");
+            printf("     /   \\\n");
+            printf("   4/     \\1\n");
+            printf("   /       \\\n");
+            printf(" [B]---2---[C]\n");
+            printf("   \\       /\n");
+            printf("    5\\   /3\n");
+            printf("      [D]\n\n");
+
+            printf("Daftar koneksi (arah tidak berpengaruh):\n");
+            printf("1) A - B : 4 unit kabel\n");
+            printf("2) A - C : 1 unit kabel\n");
+            printf("3) B - C : 2 unit kabel\n");
+            printf("4) B - D : 5 unit kabel\n");
+            printf("5) C - D : 3 unit kabel\n\n");
+
+            printf("Instruksi: Masukkan total jumlah unit kabel paling sedikit\n");
+            printf("yang diperlukan untuk menghubungkan semua modul tanpa membentuk siklus.\n");
+
+            int jawaban;
+            printf("\nJawaban Anda: ");
+            int cek = scanf("%d", &jawaban);
+            bersihkanBuffer();
+            if (cek != 1)
+            {
+                printf("\nInput tidak valid. Masukkan angka bulat.\n");
+            }
+            else if (user_cek_jawaban_kruskal(jawaban))
+            {
+                printf("\nJawaban benar! Total kabel minimal adalah %d unit.\n", jawaban);
+            }
+            else
+            {
+                printf("\nJawaban salah. Jawaban yang benar adalah 6 unit kabel.\n");
+            }
+            printf("\nTekan Enter untuk kembali ke menu latihan...");
+            getchar();
+            break;
+        }
+        case 2:
+        {
+            printf("\n--- Tantangan 2: Menentukan jalur tercepat ke modul tujuan ---\n");
+            printf("Detail misi: Kendali misi ingin mengetahui jalur tercepat bagi shuttle suplai\n");
+            printf("yang berangkat dari Modul A menuju Modul D.\n");
+            printf("Berbagai rute memiliki waktu tempuh berbeda (dinyatakan dalam menit).\n");
+            printf("Gunakan algoritma Dijkstra untuk mencari jalur tercepat.\n\n");
+
+            printf("Visualisasi modul stasiun dan waktu tempuh:\n\n");
+            printf("      [A]\n");
+            printf("     /   \\\n");
+            printf("   1/     \\4\n");
+            printf("   /       \\\n");
+            printf(" [B]---2---[C]\n");
+            printf("   \\       /\n");
+            printf("    5\\   /1\n");
+            printf("      [D]\n\n");
+
+            printf("Daftar rute:\n");
+            printf("1) A -> B : 1 menit\n");
+            printf("2) A -> C : 4 menit\n");
+            printf("3) B -> C : 2 menit\n");
+            printf("4) B -> D : 5 menit\n");
+            printf("5) C -> D : 1 menit\n\n");
+
+            printf("Instruksi: Masukkan total waktu tercepat dari Modul A ke Modul D.\n");
+
+            int jawaban;
+            printf("\nJawaban Anda (dalam menit): ");
+            int cek = scanf("%d", &jawaban);
+            bersihkanBuffer();
+            if (cek != 1)
+            {
+                printf("\nInput tidak valid. Masukkan angka bulat.\n");
+            }
+            else if (user_cek_jawaban_dijkstra(jawaban))
+            {
+                printf("\nJawaban benar! Jalur tercepat memerlukan total waktu %d menit.\n", jawaban);
+            }
+            else
+            {
+                printf("\nJawaban salah. Jawaban yang benar adalah 4 menit.\n");
+            }
+            printf("\nTekan Enter untuk kembali ke menu latihan...");
+            getchar();
+            break;
+        }
+        case 3:
+            printf("\nKembali ke dashboard.\n");
+            break;
+
+        default:
+            printf("\nPilihan tidak valid. Silakan pilih 1, 2, atau 3.\n");
+            break;
+        }
     }
 }
