@@ -764,6 +764,12 @@ void admin_hapus_wahana(kumpulan_wahana *L_sorted, char *hapus)
     wahana *prev = NULL;
     wahana *hook = L_sorted->first;
 
+    if (!admin_cek_wahana_dipesan(hapus))
+    {
+        printf("\nWahana ini sudah dipesan, regulasi membatasi wewenang admin untuk melakukan edit.\n");
+        return;
+    }
+
     while (hook != NULL)
     {
         if (strcmp(hook->nama, hapus) == 0)
