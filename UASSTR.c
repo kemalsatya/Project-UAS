@@ -845,16 +845,16 @@ void admin_hapus_wahana(kumpulan_wahana *L_sorted, char *hapus)
             }
             else
             {
-                if (hook == L_sorted->last)
+                if (hook->next)
+                {
+                    prev->next = hook->next;
+                    free(hook);
+                }
+                else
                 {
                     L_sorted->last = prev;
                     free(hook);
                     return;
-                }
-                else
-                {
-                    prev->next = hook->next;
-                    free(hook);
                 }
             }
         }
