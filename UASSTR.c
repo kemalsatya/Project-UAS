@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define MAX_LENGTH 50
 #define MAX_CEK_AKUN 50
@@ -13,11 +14,17 @@
 #define FILE_WAHANA "data_wahana.txt"
 #define FILE_PESANAN "data_pesanan.txt"
 
-// Log in untuk admin ///////////////////////////////////////////////////
+#ifdef _WIN32
+#define clear_terminal() system("cls")
+#else
+#define clear_terminal() system("clear")
+#endif
+
+// Data Login Admin
 char nama_admin[] = "admin";
 char pass_admin[] = "admin1234";
 
-// Beberapa fungsi kecil yang bisa dipakai ///////////////////////////////////
+// Fungsi-fungsi kecil yang bisa dipakai
 void hapusNewline(char *str)
 {
     str[strcspn(str, "\n")] = 0;
@@ -39,7 +46,7 @@ bool user_validasi_nama_akun(char *username)
         return false;
     }
 
-    char line[MAX_LENGTH * 2]; // menampung akun + password
+    char line[MAX_LENGTH * 2]; // Menampung akun + password
 
     while (fgets(line, sizeof(line), file))
     {
@@ -49,7 +56,7 @@ bool user_validasi_nama_akun(char *username)
 
         if (strcmp(username_terdaftar, username) == 0)
         {
-            fclose(file); //
+            fclose(file);
             return true;
         }
     }
@@ -57,27 +64,20 @@ bool user_validasi_nama_akun(char *username)
     return false;
 }
 
-////////////////////////////////////////////////////////
+// Kode ini untuk nambahin delay, alternatif dari delay() yang tidak bisa digunakan di ubuntu
+void delay(int number_of_mili_seconds)
+{
+    // Menyimpan waktu mulai
+    clock_t start_time = clock();
 
-/*
-## sistem penyimpanan internal untuk :
-    1. Data register, login user dan log in admin -> list_akun.txt
-    2. Data wahana dan pemesannya -> pesanan.txt
-    3. Data wahana -> data_wahana.txt
+    // Melakukan perulangan sampai waktu yang dibutuhkan tercapai
+    while (clock() < start_time + number_of_mili_seconds)
+        ;
+}
 
-    isi file :
-    1. list_akun.txt -> Nama : [nama_user] | Password : [password_user]
-    2. pesanan.txt -> Nama: Rani | Wahana: Casio moon rocket
-    3. data_wahana.txt -> judul, deskripsi, tanggal keberangkatan, kursi.
+// ----- //
 
-    isi file data_wahana.txt sama pesanan.txt bakal diambil buat ditaroh di linked list, biar bisa ditampilin
-    data_wahana.txt => ditambah, dihapus, dicari data kursi yang kosong
-    pesanan.txt => ditampilin pesanan kursi user, hapus pesanan user
-##
-*/
-
-//// deklarasi dan inisialisasi struct /////////////////////////////////////////////////////////////////
-
+// Deklarasi dan inisialisasi struct
 typedef struct pesanan
 {
     char nama_akun[MAX_LENGTH];
@@ -96,10 +96,10 @@ typedef struct kumpulan_pesanan
 typedef struct wahana
 {
     char nama[MAX_LENGTH];
-    char tanggal[MAX_LENGTH]; // format DD-MM-YY untuk ditampilin
-    int tanggal_int;          // untuk sorting
+    char tanggal[MAX_LENGTH]; // Format DD-MM-YY untuk ditampilin
+    int tanggal_int;          // Untuk sorting tanggal
     int kursi;
-    char deskripsi[300]; // cukup 50 kata
+    char deskripsi[300]; // Cukup 50 kata
     struct wahana *next;
 } wahana;
 
@@ -122,15 +122,14 @@ void init_pesanan(kumpulan_pesanan *L)
     L->first = NULL;
     L->last = NULL;
     L->total_pesanan = 0;
-    // printf("\ninit berhasil\n");
 }
 
-////////////////////////////////////////////////////////////////////////////
+// ----- //
 
 void sistem_load_wahana_dari_file(kumpulan_wahana *L, kumpulan_wahana *L_sorted);
 void sistem_load_pesanan_dari_file(kumpulan_pesanan *L);
 
-int admin_konversi_tanggalInt(const char *tanggal); // oleh admin untuk tambah wahana
+int admin_konversi_tanggalInt(const char *tanggal); // Admin untuk tambah wahana
 
 void sistem_empty_sorted(kumpulan_wahana *L_sorted);
 void admin_tambah_wahana(kumpulan_wahana *L_sorted);
@@ -141,7 +140,7 @@ void sistem_sync_to_file(kumpulan_wahana *L_sorted, kumpulan_pesanan *p, int pil
 void ask_for_sync(kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
 {
     int ans;
-    printf("\nApakah ingin melakukan sinkronisasi file sebelum keluar ?\n[1 = ya]\n== ");
+    printf("\nApakah ingin melakukan sinkronisasi file sebelum keluar?\n[1 = Ya, 0 = Tidak]\n=== ");
     scanf("%i", &ans);
     if (ans == 1)
     {
@@ -159,8 +158,7 @@ void admin_edit_flight(kumpulan_wahana *L_sorted);
 void free_wahana_list(kumpulan_wahana *L);
 void free_pesanan_list(kumpulan_pesanan *L);
 
-////// Helper untuk cek jawaban soal Kruskal dan Dijkstra ///////////////////////////////////////////////////////
-
+// Bantuan untuk cek jawaban soal Kruskal dan Dijkstra
 bool user_cek_jawaban_kruskal(int jawaban)
 {
     // Bobot MST yang benar: edge dengan bobot 1 (A-C), 2 (B-C), 3 (C-D) = total 6
@@ -173,17 +171,17 @@ bool user_cek_jawaban_dijkstra(int jawaban)
     return jawaban == 4;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ----- //
 
-// sorting  //////////
+// Sorting
 void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kumpulan_wahana *sorted);
 void admin_transversal_add_wahana_baru(kumpulan_wahana *L_sorted, wahana *baru);
-////////////////////////////////
 
-// searching ///////
+// Searching
 void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role, bool *opsional);
 void user_pisahkan_pesanan(kumpulan_pesanan *L, kumpulan_pesanan *L_user, char *nama);
-////////////////////
+
+// ----- //
 
 void user_simulate_preparation();
 
@@ -192,10 +190,13 @@ int tampilan_whoareu()
     int ans = -1;
     while (ans > 3 || ans < 0)
     {
-        printf("\nSelamat datang di %s\n", NAMA_WAHANA);
-        printf("\nAnda datang sebagai siapa ?\n");
-        printf("1. User\n2. Admin\n3. Keluar program\n[1/2/3]\n");
-        printf("\n== ");
+        clear_terminal();
+        printf("--------------------------------------------");
+        printf("\n\tSelamat Datang di %s!\n", NAMA_WAHANA);
+        printf("--------------------------------------------\n");
+        printf("\nAnda datang sebagai siapa?\n");
+        printf("1. User\n2. Admin\n3. Keluar Program\n[1/2/3]\n");
+        printf("\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
 
@@ -205,7 +206,7 @@ int tampilan_whoareu()
         }
         else
         {
-            printf("\nPilihan tidak valid\n");
+            printf("\n> Pilihan tidak valid\n");
         }
     }
 }
@@ -215,7 +216,11 @@ int tampilan_after_whoareu()
     int ans = -1;
     while (ans < 0 || ans > 3)
     {
-        printf("\nPilih salah satu\n\n");
+        clear_terminal();
+        printf("--------------------------------------------");
+        printf("\n\tSelamat Datang di %s!\n", NAMA_WAHANA);
+        printf("--------------------------------------------\n");
+        printf("\nPilih salah satu:\n");
         printf("1. Login\n2. Buat akun\n3. Kembali\n\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
@@ -226,7 +231,7 @@ int tampilan_after_whoareu()
         }
         else
         {
-            printf("Pilihan tidak valid\n");
+            printf("> Pilihan tidak valid\n");
         }
     }
 }
@@ -234,7 +239,12 @@ int tampilan_after_whoareu()
 bool login_admin()
 {
     char input_nama[MAX_LENGTH], input_password[MAX_LENGTH];
-    printf("\n===== FORM LOG IN =====\n");
+
+    clear_terminal();
+    printf("--------------------------------------------");
+    printf("\n\tSelamat Datang di %s!\n", NAMA_WAHANA);
+    printf("--------------------------------------------\n");
+    printf("\n\t===== FORM LOG IN =====\n\n");
 
     printf("Masukkan nama: ");
     fgets(input_nama, sizeof(input_nama), stdin);
@@ -257,7 +267,12 @@ bool login_admin()
 void login_user(int *login_status, char *nama_user_login)
 {
     char input_nama[MAX_LENGTH], input_password[MAX_LENGTH];
-    printf("\n===== FORM LOG IN =====\n");
+
+    clear_terminal();
+    printf("--------------------------------------------");
+    printf("\n\tSelamat Datang di %s!\n", NAMA_WAHANA);
+    printf("--------------------------------------------\n");
+    printf("\n\t===== FORM LOG IN =====\n\n");
 
     printf("Masukkan nama: ");
     fgets(input_nama, sizeof(input_nama), stdin);
@@ -269,7 +284,7 @@ void login_user(int *login_status, char *nama_user_login)
 
     FILE *file = fopen(FILE_AKUN, "r");
     if (!file)
-        printf("\nTidak dapat membuka %s\n", FILE_AKUN);
+        printf("\n> Tidak dapat membuka %s\n", FILE_AKUN);
 
     char line[MAX_CEK_AKUN * 2];
     while (fgets(line, sizeof(line), file))
@@ -293,7 +308,11 @@ void login_user(int *login_status, char *nama_user_login)
 void user_create_account()
 {
     char input_nama[MAX_LENGTH], input_password[MAX_LENGTH];
-    printf("\n===== FORM PENDAFTARAN =====\n");
+    clear_terminal();
+    printf("--------------------------------------------");
+    printf("\n\tSelamat Datang di %s!\n", NAMA_WAHANA);
+    printf("--------------------------------------------\n");
+    printf("\n\t===== FORM PENDAFTARAN =====\n\n");
 
     while (true)
     {
@@ -303,7 +322,8 @@ void user_create_account()
 
         if (user_validasi_nama_akun(input_nama))
         {
-            printf("\nNama sudah terdaftar. Coba masukan nama lain.\n");
+            printf("\n> Nama sudah terdaftar. Coba masukan nama lain.\n\n");
+            delay(500);
         }
         else
         {
@@ -315,12 +335,12 @@ void user_create_account()
     fgets(input_password, sizeof(input_password), stdin);
     hapusNewline(input_password);
 
-    // daftarin akun ke data_akun.txt
+    // Mendaftarkan akun ke data_akun.txt
     FILE *file = fopen(FILE_AKUN, "a");
     fprintf(file, "%s,%s\n", input_nama, input_password);
     fclose(file);
 
-    printf("\nAkun berhasil didaftarkan\n");
+    printf("\n> Akun berhasil didaftarkan\n");
 }
 
 void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, kumpulan_pesanan *L_user, char *nama_akun_user)
@@ -331,15 +351,18 @@ void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, 
         int book_status = 0;
         bool wahana_status = true;
         char target_wahana[MAX_LENGTH];
-        printf("\nSelamat Datang, %s.\n", nama_akun_user);
-        printf("Wahana penerbangan anda mendatang :\n\n");
+        clear_terminal();
+        printf("--------------------------------------------");
+        printf("\n\tSelamat Datang, %s.\n", nama_akun_user);
+        printf("--------------------------------------------\n");
+        printf("\nWahana penerbangan Anda yang akan datang :\n\n");
 
         user_tampilkan_pesanan(w_sorted, L_user, nama_akun_user);
 
-        printf("\n\n1. Lihat penerbangan mendatang\n");
-        printf("2. Batalkan penerbangan anda\n");
-        printf("3. Lakukan simulasi persiapan penerbangan\n");
-        printf("4. Log out\n");
+        printf("\n1. Lihat Penerbangan Mendatang\n");
+        printf("2. Batalkan Penerbangan\n");
+        printf("3. Lakukan Simulasi Persiapan Penerbangan\n");
+        printf("4. Logout\n");
         printf("5. Keluar\n\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
@@ -347,21 +370,28 @@ void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, 
         switch (ans)
         {
         case 1:
+            clear_terminal();
+            printf("--------------------------------------------");
+            printf("\n\tSelamat Datang, %s.\n", nama_akun_user);
+            printf("--------------------------------------------\n\n");
             sistem_tampilkan_wahana_sorted(w_sorted, 1, &wahana_status);
             if (wahana_status)
             {
-                printf("\nApakah anda ingin memesan ?\n[1 = yes]\n== ");
+                printf("---------------------------------------------\n");
+                printf("\nApakah Anda ingin melakukan reservasi?\n[1 = Ya, 0 = Tidak]\n\n=== ");
                 scanf("%d", &book_status);
                 bersihkanBuffer();
                 user_book_flight(*w_sorted, L, L_user, book_status, nama_akun_user);
             }
             else
             {
-                printf("\nTidak ada wahana penerbangan dengan kursi tersisa\n");
+                printf("\n> Tidak ada wahana penerbangan dengan kursi tersisa\n");
+                delay(500);
             }
             break;
         case 2:
-            printf("\nMasukkan nama wahana yang ingin dibatalkan: ");
+            printf("\n---------------------------------------------\n");
+            printf("\nMasukkan nama wahana yang ingin dibatalkan :\n=== ");
             fgets(target_wahana, sizeof(target_wahana), stdin);
             hapusNewline(target_wahana);
             hapus_wahana_cancel_pesanan(2, L, L_user, w_sorted, target_wahana, nama_akun_user);
@@ -371,7 +401,7 @@ void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, 
             break;
         case 4:
             sistem_sync_to_file(NULL, L, 2);
-            printf("\nMenyinkronasi data...\n");
+            printf("\n> Menyinkronasi data...\n");
             *layer = 1;
             return;
         case 5:
@@ -380,7 +410,8 @@ void dashboard_user(int *layer, kumpulan_wahana *w_sorted, kumpulan_pesanan *L, 
             *layer = 4;
             return;
         default:
-            printf("\ntidak ada pada pilihan\n");
+            printf("\n>  Tidak ada pada pilihan\n");
+            delay(250);
             break;
         }
     } while (true);
@@ -393,17 +424,21 @@ void dashboard_admin(int *layer, kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
     do
     {
         int hapus = -1;
-        printf("\nSelamat datang, officer.\n");
-        printf("Wahana penerbangan anda mendatang :\n\n");
+
+        clear_terminal();
+        printf("---------------------------------------");
+        printf("\n\tSelamat Datang, Officer.\n");
+        printf("---------------------------------------\n");
+        printf("\nWahana Penerbangan Mendatang :\n\n");
 
         sistem_tampilkan_wahana_sorted(L_sorted, 2, NULL);
 
-        printf("\n1. Tambah wahana penerbangan\n");
-        printf("2. Hapus wahana penerbangan\n");
-        printf("3. Edit wahana penerbangan\n");
-        printf("4. Eksekusi wahana penerbangan\n");
-        printf("5. Sinkronisasi data wahana penerbangan\n");
-        printf("6. Log out\n");
+        printf("\n1. Tambah Wahana Penerbangan\n");
+        printf("2. Hapus Wahana Penerbangan\n");
+        printf("3. Edit Wahana Penerbangan\n");
+        printf("4. Eksekusi Wahana Penerbangan\n");
+        printf("5. Sinkronisasi Data Wahana Penerbangan\n");
+        printf("6. Logout\n");
         printf("7. Keluar\n\n=== ");
         scanf("%i", &ans);
         bersihkanBuffer();
@@ -414,7 +449,8 @@ void dashboard_admin(int *layer, kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
             admin_tambah_wahana(L_sorted);
             break;
         case 2:
-            printf("\nPilih wahana penerbangan mana yang ingin dihapus\n==");
+            printf("\n--------------------------------------------\n");
+            printf("\nMasukkan nama wahana yang ingin dihapus.\n\n=== ");
             fgets(target_wahana, sizeof(target_wahana), stdin);
             hapusNewline(target_wahana);
             hapus_wahana_cancel_pesanan(1, NULL, NULL, L_sorted, target_wahana, NULL);
@@ -424,7 +460,7 @@ void dashboard_admin(int *layer, kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
             break;
         case 4:
             admin_eksekusi_wahana(L_sorted, p);
-            printf("\nWahana explorasi berhasil diluncurkan\n");
+            printf("\n> Wahana explorasi berhasil diluncurkan\n");
             break;
         case 5:
             sistem_sync_to_file(L_sorted, NULL, 1);
@@ -439,14 +475,16 @@ void dashboard_admin(int *layer, kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
             *layer = 4;
             return;
         default:
-            printf("\ntidak ada pada pilihan\n");
+            printf("\n> Tidak ada pada pilihan\n");
+            delay(250);
             break;
         }
     } while (true);
 }
 
-// ## Program utama ####################################################################
+// ----- //
 
+// ## Program utama ##
 int main()
 {
     int layer = 1;
@@ -469,7 +507,7 @@ int main()
         // 1 = user, 2 = admin
         while (layer == 1)
         {
-            // tampilan buat milih as user or admin
+            // Tampilan untuk pilih masuk sebagai user atau admin
             user_or_admin = tampilan_whoareu();
             switch (user_or_admin)
             {
@@ -486,8 +524,8 @@ int main()
         while (layer == 2)
         {
             if (user_or_admin == 1)
-            {                                        // adalah user
-                int flow = tampilan_after_whoareu(); // login, create account, atau back
+            {                                        // Sebagai user
+                int flow = tampilan_after_whoareu(); // Login, membuat akun, atau kembali
                 int login_status_user = 0;
                 switch (flow)
                 {
@@ -502,23 +540,24 @@ int main()
                     }
                     else
                     {
-                        printf("\nlog in tidak valid");
+                        printf("\n> Login tidak valid\n");
+                        delay(250);
                     }
                     break;
                 case 2:
                     user_create_account();
-                    layer++;
                     break;
                 case 3:
                     layer--;
                     break;
                 default:
-                    printf("\nPilihan tidak valid");
+                    printf("\n> Pilihan tidak valid");
+                    delay(250);
                     break;
                 }
             }
             else if (user_or_admin == 2)
-            {
+            { // Sebagai admin
                 if (login_admin())
                 {
                     sistem_load_pesanan_dari_file(&list_pesanan);
@@ -526,7 +565,8 @@ int main()
                 }
                 else
                 {
-                    printf("\nLog in tidak valid\n");
+                    printf("\n> Login tidak valid\n");
+                    delay(250);
                     layer--;
                 }
             }
@@ -536,10 +576,10 @@ int main()
             int admin_answer;
             switch (user_or_admin)
             {
-            case 1: // adalah user
+            case 1: // Sebagai user
                 dashboard_user(&layer, &list_wahana_sorted, &list_pesanan, &list_pesanan_user, nama_user_login);
                 break;
-            case 2: // adalah admin
+            case 2: // Sebagai admin
                 dashboard_admin(&layer, &list_wahana_sorted, &list_pesanan);
                 break;
             }
@@ -556,19 +596,21 @@ int main()
         }
     }
 }
-// #############################################################################################
+
+// ############
+
+// ----- //
 
 void sistem_load_wahana_dari_file(kumpulan_wahana *L, kumpulan_wahana *L_sorted)
 {
-    // Initialize the linked list as empty
     L->first = NULL;
 
     FILE *file = fopen(FILE_WAHANA, "r");
 
-    // Case 1: File doesn't exist
+    // Case 1: Jika file tidak ada, kemudian membuat file baru
     if (!file)
     {
-        printf("\nFile data_wahana.txt tidak ditemukan. Membuat file baru.\n");
+        printf("\n> File data_wahana.txt tidak ditemukan. Membuat file baru.\n");
         file = fopen(FILE_WAHANA, "w");
         if (file)
         {
@@ -576,29 +618,29 @@ void sistem_load_wahana_dari_file(kumpulan_wahana *L, kumpulan_wahana *L_sorted)
         }
         else
         {
-            printf("\nGagal membuat file data_wahana.txt\n");
+            printf("\n> Gagal membuat file data_wahana.txt\n");
         }
         return;
     }
 
-    // Case 2: File exists but is empty
+    // Case 2: Jika file ada tapi kosong
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     if (file_size == 0)
     {
-        printf("\nFile data_wahana.txt kosong. Linked list dibiarkan kosong.\n");
+        printf("\n> File data_wahana.txt kosong. Linked list dibiarkan kosong.\n");
         fclose(file);
         return;
     }
     rewind(file);
 
-    // Case 3: File exists and has content
+    // Case 3: Jika file dan isinya ada
     char baris[500];
     int data_count = 0;
 
     while (fgets(baris, sizeof(baris), file))
     {
-        // Skip empty lines
+        // Skip baris kosong
         if (strlen(baris) <= 1)
             continue;
 
@@ -608,12 +650,22 @@ void sistem_load_wahana_dari_file(kumpulan_wahana *L, kumpulan_wahana *L_sorted)
         {
             baru->next = L->first;
             L->first = baru;
+            if (L->first == NULL)
+            {
+                L->first = L->last = baru;
+            }
+            else
+            {
+                L->last->next = baru;
+                L->last = baru;
+            }
+            baru->next = NULL;
+            L->total_node++;
             data_count++;
         }
         else
         {
-            free(baru); // kalau parsing gagal, jangan ditambahkan
-            printf("\nGagal memparsing baris: %s", baris);
+            free(baru);
         }
     }
 
@@ -621,9 +673,9 @@ void sistem_load_wahana_dari_file(kumpulan_wahana *L, kumpulan_wahana *L_sorted)
 
     if (data_count > 0)
     {
-        printf("\nBerhasil memuat %d data wahana dari file.\n", data_count);
+        printf("\n> Berhasil memuat %d data wahana dari file.\n", data_count);
     }
-    // langsung melakukan proses sorting
+    // Langsung melakukan proses sorting
     admin_execute_selection_sort(data_count, L, L_sorted);
 }
 
@@ -637,11 +689,14 @@ int admin_konversi_tanggalInt(const char *tanggal)
 
 void admin_tambah_wahana(kumpulan_wahana *L_sorted)
 {
-    printf("\n===== Form Tambah Wahana =====\n\n");
+    clear_terminal();
+    printf("--------------------------------------------");
+    printf("\n\t===== Form Tambah Wahana =====\n");
+    printf("--------------------------------------------\n");
     wahana *baru = malloc(sizeof(wahana));
     if (!baru)
     {
-        printf("\nGagal mengalokasikan memori!\n");
+        printf("\n> Gagal mengalokasikan memori!\n");
         return;
     }
 
@@ -649,8 +704,9 @@ void admin_tambah_wahana(kumpulan_wahana *L_sorted)
     printf("\nMasukkan nama wahana: ");
     if (!fgets(baru->nama, sizeof(baru->nama), stdin))
     {
-        printf("\nGagal membaca input nama\n");
+        printf("\n> Gagal membaca input nama\n");
         free(baru);
+        delay(250);
         return;
     }
     hapusNewline(baru->nama);
@@ -659,8 +715,9 @@ void admin_tambah_wahana(kumpulan_wahana *L_sorted)
     printf("Masukkan tanggal peluncuran (DD-MM-YY): ");
     if (!fgets(baru->tanggal, sizeof(baru->tanggal), stdin))
     {
-        printf("\nGagal membaca input tanggal\n");
+        printf("\n> Gagal membaca input tanggal\n");
         free(baru);
+        delay(250);
         return;
     }
     hapusNewline(baru->tanggal);
@@ -668,11 +725,12 @@ void admin_tambah_wahana(kumpulan_wahana *L_sorted)
 
     // Input kursi
     printf("Masukkan jumlah kursi: ");
-    if (scanf("%d", &baru->kursi) != 1)
+    if (scanf("%d", &baru->kursi) != 1 || baru->kursi <= 0)
     {
-        printf("\nInput kursi tidak valid!\n");
+        printf("\n> Input kursi tidak valid! Angka harus positif\n");
         bersihkanBuffer();
         free(baru);
+        delay(250);
         return;
     }
     bersihkanBuffer();
@@ -681,8 +739,9 @@ void admin_tambah_wahana(kumpulan_wahana *L_sorted)
     printf("Masukkan deskripsi (maks 50 kata): ");
     if (!fgets(baru->deskripsi, sizeof(baru->deskripsi), stdin))
     {
-        printf("\nGagal membaca input deskripsi\n");
+        printf("\n> Gagal membaca input deskripsi\n");
         free(baru);
+        delay(250);
         return;
     }
     hapusNewline(baru->deskripsi);
@@ -694,7 +753,7 @@ void admin_tambah_wahana(kumpulan_wahana *L_sorted)
     FILE *file = fopen(FILE_WAHANA, "a");
     if (!file)
     {
-        printf("\nGagal membuka file %s\n", FILE_WAHANA);
+        printf("\n> Gagal membuka file %s\n", FILE_WAHANA);
         free(baru);
         return;
     }
@@ -704,30 +763,32 @@ void admin_tambah_wahana(kumpulan_wahana *L_sorted)
             baru->deskripsi);
     fclose(file);
 
-    printf("\nWahana berhasil ditambahkan!\n");
+    printf("\n> Wahana berhasil ditambahkan!\n");
+    delay(500);
 }
 
 void admin_eksekusi_wahana(kumpulan_wahana *L_sorted, kumpulan_pesanan *p)
 {
+    if (L_sorted->first == NULL)
+    {
+        printf("\n> Tidak ada wahana yang tercatat\n");
+        delay(250);
+        return;
+    }
+
     wahana *hapus = L_sorted->first;
     char target_wahana[MAX_LENGTH];
     strcpy(target_wahana, hapus->nama);
 
+    L_sorted->first = hapus->next;
     if (L_sorted->first == NULL)
-    {
-        printf("\nTidak ada wahana yang tercatat\n");
-        return;
-    }
-    else
-    {
-        L_sorted->first = L_sorted->first->next;
-        free(hapus);
-    }
+        L_sorted->last = NULL;
+    free(hapus);
+    L_sorted->total_node--;
 
     sistem_hapus_pesanan_setelah_eksekusi(p, target_wahana);
-
-    sistem_sync_to_file(NULL, p, 2);
-    sistem_sync_to_file(L_sorted, NULL, 1);
+    sistem_sync_to_file(L_sorted, p, 1);
+    sistem_sync_to_file(L_sorted, p, 2);
 }
 
 void sistem_hapus_pesanan_setelah_eksekusi(kumpulan_pesanan *L, char *nama_wahana)
@@ -764,9 +825,10 @@ void admin_hapus_wahana(kumpulan_wahana *L_sorted, char *hapus)
     wahana *prev = NULL;
     wahana *hook = L_sorted->first;
 
-    if (!admin_cek_wahana_dipesan(hapus))
+    if (admin_cek_wahana_dipesan(hapus))
     {
-        printf("\nWahana ini sudah dipesan, regulasi membatasi wewenang admin untuk melakukan edit.\n");
+        printf("\n> Wahana ini sudah dipesan, regulasi membatasi wewenang admin untuk melakukan penghapusan.\n");
+        delay(500);
         return;
     }
 
@@ -801,10 +863,12 @@ void admin_hapus_wahana(kumpulan_wahana *L_sorted, char *hapus)
     }
 }
 
-// selection sorting ////////////////////////////
+// ----- //
+
+// Selection sorting
 void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kumpulan_wahana *sorted)
 {
-    wahana *current = unsorted->first;
+    wahana *current;
 
     sistem_empty_sorted(sorted);
     sorted->first = NULL;
@@ -818,7 +882,7 @@ void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kum
         wahana *prev_current = NULL;
         wahana *prev_min = NULL;
 
-        // mencari node min
+        // Mencari node min
         while (current != NULL)
         {
             if (current->tanggal_int < min->tanggal_int)
@@ -831,13 +895,13 @@ void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kum
             current = current->next;
         }
 
-        // misahin min dari unsorted
+        // Memisahkan min dari unsorted
         if (prev_min == NULL)
             unsorted->first = min->next;
         else
             prev_min->next = min->next;
 
-        // masukin min ke sorted
+        // Masukkan min ke sorted
         if (sorted->first == NULL)
         {
             sorted->first = min;
@@ -852,13 +916,13 @@ void admin_execute_selection_sort(int total_node, kumpulan_wahana *unsorted, kum
     }
 }
 
-////////////////////////////////////////////////////
+// ----- //
 
 void admin_transversal_add_wahana_baru(kumpulan_wahana *L_sorted, wahana *baru)
 {
     if (!baru || !L_sorted)
     {
-        printf("\nParameter tidak valid\n");
+        printf("\n> Parameter tidak valid\n");
         return;
     }
 
@@ -872,7 +936,7 @@ void admin_transversal_add_wahana_baru(kumpulan_wahana *L_sorted, wahana *baru)
         return;
     }
 
-    // Cari posisi yang tepat untuk insert
+    // Cari posisi yang pas untuk insert
     wahana *current = L_sorted->first;
     wahana *prev = NULL;
 
@@ -908,7 +972,9 @@ void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role, bool *o
 {
     if (L_sorted->first == NULL)
     {
-        printf("\nTidak ada wahana penerbangan yang ditemukan\n\n");
+        printf("\n> Tidak ada wahana penerbangan yang ditemukan\n\n");
+        if (opsional != NULL)
+            *opsional = false;
         return;
     }
 
@@ -943,7 +1009,7 @@ void sistem_tampilkan_wahana_sorted(kumpulan_wahana *L_sorted, int role, bool *o
     }
 }
 
-// refresh linked list wahana sorted
+// Refresh linked list wahana sorted
 void sistem_empty_sorted(kumpulan_wahana *L_sorted)
 {
     wahana *current = L_sorted->first, *temp;
@@ -958,7 +1024,7 @@ void sistem_empty_sorted(kumpulan_wahana *L_sorted)
     L_sorted->total_node = 0;
 }
 
-// nulis ulang seluruh file
+// Tulis ulang seluruh file
 void sistem_sync_to_file(kumpulan_wahana *L_sorted, kumpulan_pesanan *p, int pilihan)
 {
     FILE *file = NULL;
@@ -966,18 +1032,15 @@ void sistem_sync_to_file(kumpulan_wahana *L_sorted, kumpulan_pesanan *p, int pil
     switch (pilihan)
     {
     case 1:
-        if (L_sorted == NULL || L_sorted->first == NULL)
-        {
-            printf("\nTidak ada data wahana untuk disinkronisasi\n");
-            return;
-        }
-
         file = fopen(FILE_WAHANA, "w");
         if (!file)
         {
-            printf("\nGagal membuka file %s untuk disinkronisasi\n", FILE_WAHANA);
+            printf("\n> Gagal membuka file %s untuk disinkronisasi\n", FILE_WAHANA);
             return;
         }
+
+        if (L_sorted == NULL || L_sorted->first == NULL)
+            return;
 
         wahana *current = L_sorted->first;
         while (current != NULL)
@@ -986,27 +1049,33 @@ void sistem_sync_to_file(kumpulan_wahana *L_sorted, kumpulan_pesanan *p, int pil
             current = current->next;
         }
         fclose(file);
-        printf("\nBerhasil melakukan sinkronasi file\n");
+        printf("\n> Berhasil melakukan sinkronasi file\n");
+        delay(250);
         break;
     case 2:
         file = fopen(FILE_PESANAN, "w");
         if (!file)
         {
-            printf("\nGagal membuka file %s untuk disinkronisasi\n", FILE_PESANAN);
+            printf("\n> Gagal membuka file %s untuk disinkronisasi\n", FILE_PESANAN);
             return;
         }
 
-        pesanan *current_pesanan = (p ? p->first : NULL);
+        if (p == NULL || p->first == NULL)
+            return;
+
+        pesanan *current_pesanan = p->first;
         while (current_pesanan)
         {
             fprintf(file, "%s,%s,%d\n", current_pesanan->nama_akun, current_pesanan->nama_wahana, current_pesanan->kursi_dipesan);
             current_pesanan = current_pesanan->next;
         }
         fclose(file);
-        printf("\nData pesanan berhasil disinkronisasi\n");
+        printf("\n> Data pesanan berhasil disinkronisasi\n");
+        delay(250);
         break;
     default:
-        printf("\nPilihan tidak tersedia\n");
+        printf("\n> Pilihan tidak tersedia\n");
+        delay(250);
         break;
     }
 }
@@ -1014,21 +1083,24 @@ void sistem_sync_to_file(kumpulan_wahana *L_sorted, kumpulan_pesanan *p, int pil
 void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
 {
     // Inisialisasi ulang linked list
-    free_pesanan_list(L); // Pastikan semua node lama dibebaskan
+    if (L && L->first)
+    {
+        free_pesanan_list(L); // Semua node lama dibebaskan
+    }
     L->first = L->last = NULL;
     L->total_pesanan = 0;
 
     FILE *file = fopen(FILE_PESANAN, "r");
 
-    // kalau file tidak ada, buat baru
+    // Kalau file tidak ada, buat baru
     if (!file)
     {
-        printf("\nFile %s tidak ditemukan. Membuat file baru.\n", FILE_PESANAN);
+        printf("\n> File %s tidak ditemukan. Membuat file baru.\n", FILE_PESANAN);
         file = fopen(FILE_PESANAN, "w");
         if (file)
             fclose(file);
         else
-            printf("\nGagal membuat file %s\n", FILE_PESANAN);
+            printf("\n> Gagal membuat file %s\n", FILE_PESANAN);
         return;
     }
 
@@ -1044,7 +1116,7 @@ void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
         pesanan *baru = malloc(sizeof(pesanan));
         if (!baru)
         {
-            printf("\nGagal mengalokasikan memori untuk node pesanan\n");
+            printf("\n> Gagal mengalokasikan memori untuk node pesanan\n");
             continue;
         }
 
@@ -1053,7 +1125,7 @@ void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
                    baru->nama_wahana,
                    &baru->kursi_dipesan) != 3)
         {
-            printf("\nGagal membaca baris: %s", baris);
+            printf("\n> Gagal membaca baris: %s", baris);
             free(baru);
             continue;
         }
@@ -1070,15 +1142,17 @@ void sistem_load_pesanan_dari_file(kumpulan_pesanan *L)
             L->last->next = baru;
             L->last = baru;
         }
-
+        baru->next = NULL;
         L->total_pesanan++;
         data_count++;
     }
 
     fclose(file);
 
-    // printf("\nBerhasil memuat %i pesanan dari file %s\n", data_count, FILE_PESANAN);
+    printf("\n> Berhasil memuat %i pesanan dari file %s\n", data_count, FILE_PESANAN);
 }
+
+// ----- //
 
 void user_pisahkan_pesanan(kumpulan_pesanan *L, kumpulan_pesanan *L_user, char *nama)
 {
@@ -1112,7 +1186,7 @@ void user_tampilkan_pesanan(kumpulan_wahana *w_sorted, kumpulan_pesanan *L_user,
 {
     if (L_user->first == NULL)
     {
-        printf("\nUser %s belum book flight\n", nama);
+        printf("> User %s belum book flight\n", nama);
         return;
     }
     else
@@ -1142,28 +1216,29 @@ void user_book_flight(kumpulan_wahana sorted, kumpulan_pesanan *L, kumpulan_pesa
 {
     if (ans != 1)
         return;
-    char name_flight_booked[MAX_LENGTH];
+    char target_wahana[MAX_LENGTH];
     int kursi_dipesan;
 
     wahana *current = sorted.first;
-    pesanan *baru = (pesanan *)malloc(sizeof(pesanan));
     pesanan *hook = L->first;
 
-    printf("Masukkan nama wahana yang ingin dipesan\n== ");
-    fgets(name_flight_booked, sizeof(name_flight_booked), stdin);
-    hapusNewline(name_flight_booked);
+    printf("\n---------------------------------------------\n");
+    printf("\nMasukkan nama wahana yang ingin dipesan :\n=== ");
+    fgets(target_wahana, sizeof(target_wahana), stdin);
+    hapusNewline(target_wahana);
 
     while (current != NULL)
     {
-        if (strcmp(current->nama, name_flight_booked) == 0)
+        if (strcmp(current->nama, target_wahana) == 0)
         {
-            printf("\nMasukkan jumlah kursi yang ingin dipesan = ");
+            printf("\nMasukkan jumlah kursi yang ingin dipesan :\n=== ");
             scanf("%d", &kursi_dipesan);
             bersihkanBuffer();
 
             if (kursi_dipesan > current->kursi || kursi_dipesan <= 0)
             {
-                printf("\nJumlah kursi tidak valid. Tersedia: %d kursi.\n", current->kursi);
+                printf("\n> Jumlah kursi tidak valid. Tersedia: %d kursi.\n", current->kursi);
+                delay(350);
                 return;
             }
 
@@ -1172,11 +1247,11 @@ void user_book_flight(kumpulan_wahana sorted, kumpulan_pesanan *L, kumpulan_pesa
             pesanan *p_user = (pesanan *)malloc(sizeof(pesanan));
 
             strcpy(p_user->nama_akun, nama);
-            strcpy(p_user->nama_wahana, name_flight_booked);
+            strcpy(p_user->nama_wahana, target_wahana);
             p_user->kursi_dipesan = kursi_dipesan;
             p_user->next = NULL;
 
-            // simpan di linked list user
+            // Simpan di linked list user
             if (!L_user->first)
             {
                 L_user->first = p_user;
@@ -1185,11 +1260,12 @@ void user_book_flight(kumpulan_wahana sorted, kumpulan_pesanan *L, kumpulan_pesa
             else
             {
                 L_user->last->next = p_user;
+                L_user->last = p_user;
             }
-            L_user->last = p_user;
 
-            // simpan di linked list pesanan utama
+            // Simpan di linked list pesanan utama
             pesanan *p_global = (pesanan *)malloc(sizeof(pesanan));
+
             strcpy(p_global->nama_akun, p_user->nama_akun);
             strcpy(p_global->nama_wahana, p_user->nama_wahana);
             p_global->kursi_dipesan = p_user->kursi_dipesan;
@@ -1199,27 +1275,26 @@ void user_book_flight(kumpulan_wahana sorted, kumpulan_pesanan *L, kumpulan_pesa
             {
                 L->first = p_global;
                 L->last = p_global;
-                // printf("\nBerhasil menambahkan pesanan di urutan 1\n");
             }
             else
             {
+                L->last->next = p_global;
                 L->last = p_global;
-                p_global->next = NULL;
-                // printf("\nBerhasil menambahkan pesanan di urutan terakhir\n");
             }
 
             L->total_pesanan++;
 
-            // simpan di file
+            // Simpan di file
             FILE *file = fopen(FILE_PESANAN, "a");
             fprintf(file, "%s,%s,%d\n", nama, current->nama, kursi_dipesan);
             fclose(file);
-            printf("\nBerhasil menambahkan pesanan di file %s\n", FILE_PESANAN);
+            printf("\n> Berhasil menambahkan pesanan di file %s\n", FILE_PESANAN);
             return;
         }
         current = current->next;
     }
-    printf("\nWahana tidak ditemukan\n");
+    printf("\n> Wahana tidak ditemukan\n");
+    delay(250);
 }
 
 void user_cancel_flight(kumpulan_wahana *W_sorted, kumpulan_pesanan *L, kumpulan_pesanan *L_user, char *nama_user, char *nama_wahana)
@@ -1256,7 +1331,8 @@ void user_cancel_flight(kumpulan_wahana *W_sorted, kumpulan_pesanan *L, kumpulan
 
     if (!ditemukan)
     {
-        printf("\nTidak ditemukan pesanan dengan nama wahana tersebut\n");
+        printf("\n> Tidak ditemukan pesanan dengan nama wahana tersebut\n");
+        delay(250);
         return;
     }
 
@@ -1296,8 +1372,11 @@ void user_cancel_flight(kumpulan_wahana *W_sorted, kumpulan_pesanan *L, kumpulan
         current_wahana = current_wahana->next;
     }
 
-    printf("\nPesanan berhasil dibatalkan.\n");
+    printf("\n> Pesanan berhasil dibatalkan.\n");
+    delay(500);
 }
+
+// ----- //
 
 void hapus_wahana_cancel_pesanan(int pilihan, kumpulan_pesanan *L, kumpulan_pesanan *L_user, kumpulan_wahana *W_sorted, char *hapus, char *nama)
 {
@@ -1311,16 +1390,25 @@ void hapus_wahana_cancel_pesanan(int pilihan, kumpulan_pesanan *L, kumpulan_pesa
     }
     else
     {
-        printf("\nTidak ada di pilihan\n");
+        printf("\n> Tidak ada di pilihan\n");
+        delay(250);
     }
     return;
 }
 
+// ----- //
+
 bool admin_cek_wahana_dipesan(char *nama_wahana)
 {
-    FILE *file = fopen(FILE_WAHANA, "r");
+    FILE *file = fopen(FILE_PESANAN, "r");
     if (!file)
+    {
         return false;
+    }
+    else
+    {
+        printf("\n> Berhasil membuka file %s\n", FILE_PESANAN);
+    }
 
     char baris[150];
     char akun_pemesan[MAX_LENGTH], wahana_dipesan[MAX_LENGTH];
@@ -1344,13 +1432,15 @@ bool admin_cek_wahana_dipesan(char *nama_wahana)
 void admin_edit_flight(kumpulan_wahana *L_sorted)
 {
     char target_wahana[MAX_LENGTH];
-    printf("Masukkan nama wahana yang ingin diedit: ");
+    printf("\n---------------------------------------------\n");
+    printf("\nMasukkan nama wahana yang ingin diedit :\n=== ");
     fgets(target_wahana, sizeof(target_wahana), stdin);
     hapusNewline(target_wahana);
 
-    if (!admin_cek_wahana_dipesan(target_wahana))
+    if (admin_cek_wahana_dipesan(target_wahana))
     {
-        printf("\nWahana ini sudah dipesan, regulasi membatasi wewenang admin untuk melakukan edit.\n");
+        printf("\n> Wahana ini sudah dipesan, regulasi membatasi wewenang admin untuk melakukan edit.\n");
+        delay(350);
         return;
     }
 
@@ -1359,7 +1449,8 @@ void admin_edit_flight(kumpulan_wahana *L_sorted)
     {
         if (strcmp(current->nama, target_wahana) == 0)
         {
-            printf("Edit data untuk wahana %s\n", current->nama);
+            printf("\n--------------------------------------------\n\n");
+            printf("Edit Data untuk Wahana %s\n\n", current->nama);
 
             printf("Tanggal peluncuran (DD-MM-YY): ");
             fgets(current->tanggal, sizeof(current->tanggal), stdin);
@@ -1375,27 +1466,36 @@ void admin_edit_flight(kumpulan_wahana *L_sorted)
             hapusNewline(current->deskripsi);
 
             printf("\nWahana berhasil diedit.\n");
+            delay(250);
             return;
         }
         current = current->next;
     }
-    printf("\nWahana tidak ditemukan\n");
+    printf("\n> Wahana tidak ditemukan\n");
+    delay(250);
 }
+
+// ----- //
 
 void free_wahana_list(kumpulan_wahana *L)
 {
+    if (L == NULL || L->first == NULL)
+        return;
     wahana *current = L->first, *tmp;
-    while (current)
+    while (current != NULL)
     {
         tmp = current->next;
         free(current);
         current = tmp;
     }
     L->first = L->last = NULL;
+    L->total_node = 0;
 }
 
 void free_pesanan_list(kumpulan_pesanan *L)
 {
+    if (L == NULL || L->first == NULL)
+        return;
     pesanan *current = L->first, *tmp;
     while (current)
     {
@@ -1404,22 +1504,28 @@ void free_pesanan_list(kumpulan_pesanan *L)
         current = tmp;
     }
     L->first = L->last = NULL;
+    L->total_pesanan = 0;
 }
+
+// ----- //
 
 void user_simulate_preparation()
 {
     int choice = 0;
     while (choice != 3)
     {
-        printf("\n===== MODUL SIMULASI LATIHAN ASTRONOT =====\n");
-        printf("\nSelamat datang, calon astronot! Hari ini Anda akan mengikuti dua latihan penting\n");
-        printf("untuk mengasah kemampuan navigasi dan pengoptimalan sistem dalam misi luar angkasa.\n");
-        printf("Pilih tantangan yang ingin Anda kerjakan:\n\n");
+        clear_terminal();
+        printf("------------------------------------------------------------");
+        printf("\n\t===== MODUL SIMULASI LATIHAN ASTRONOT =====\n");
+        printf("------------------------------------------------------------\n");
+        printf("\nSelamat datang, calon astronot!\nHari ini Anda akan mengikuti dua latihan penting\n");
+        printf("untuk mengasah kemampuan navigasi dan pengoptimalan sistem\ndalam misi luar angkasa.\n");
+        printf("\nPilih tantangan yang ingin Anda kerjakan:\n\n");
 
-        printf("1. Optimasi sistem kapal [algoritma Kruskal]\n");
-        printf("2. Mencari jalur tercepat [algoritma Dijkstra]\n");
-        printf("3. Kembali ke dashboard\n");
-        printf("=== ");
+        printf("1. Optimasi Sistem Kapal [Algoritma Kruskal]\n");
+        printf("2. Mencari Jalur Tercepat [Algoritma Dijkstra]\n");
+        printf("3. Kembali ke Dashboard\n");
+        printf("\n=== ");
         scanf("%d", &choice);
         bersihkanBuffer();
 
@@ -1427,8 +1533,11 @@ void user_simulate_preparation()
         {
         case 1:
         {
-            printf("\n--- Tantangan 1: Optimasi sistem kapal luar angkasa ---\n");
-            printf("Detail misi: Kapal Anda memiliki beberapa modul yang saling terhubung.\n");
+            clear_terminal();
+            printf("---------------------------------------------------------------------------");
+            printf("\n\t--- Tantangan 1: Optimasi sistem kapal luar angkasa ---\n");
+            printf("---------------------------------------------------------------------------\n");
+            printf("\nDetail misi: Kapal Anda memiliki beberapa modul yang saling terhubung.\n");
             printf("Untuk menghemat daya dan meminimalkan kabel penghubung, Anda harus mencari\n");
             printf("penghubung minimal yang tetap menghubungkan semua modul secara efisien.\n");
             printf("Terapkan algoritma Kruskal untuk menentukan Minimum Spanning Tree (MST).\n\n");
@@ -1454,12 +1563,12 @@ void user_simulate_preparation()
             printf("yang diperlukan untuk menghubungkan semua modul tanpa membentuk siklus.\n");
 
             int jawaban;
-            printf("\nJawaban Anda: ");
+            printf("\nJawaban Anda : ");
             int cek = scanf("%d", &jawaban);
             bersihkanBuffer();
             if (cek != 1)
             {
-                printf("\nInput tidak valid. Masukkan angka bulat.\n");
+                printf("\n> Input tidak valid. Masukkan angka bulat.\n");
             }
             else if (user_cek_jawaban_kruskal(jawaban))
             {
@@ -1475,8 +1584,11 @@ void user_simulate_preparation()
         }
         case 2:
         {
-            printf("\n--- Tantangan 2: Menentukan jalur tercepat ke modul tujuan ---\n");
-            printf("Detail misi: Kendali misi ingin mengetahui jalur tercepat bagi shuttle suplai\n");
+            clear_terminal();
+            printf("-------------------------------------------------------------------------------");
+            printf("\n\t--- Tantangan 2: Menentukan jalur tercepat ke modul tujuan ---\n");
+            printf("-------------------------------------------------------------------------------\n");
+            printf("\nDetail misi: Kendali misi ingin mengetahui jalur tercepat bagi shuttle suplai\n");
             printf("yang berangkat dari Modul A menuju Modul D.\n");
             printf("Berbagai rute memiliki waktu tempuh berbeda (dinyatakan dalam menit).\n");
             printf("Gunakan algoritma Dijkstra untuk mencari jalur tercepat.\n\n");
@@ -1501,12 +1613,12 @@ void user_simulate_preparation()
             printf("Instruksi: Masukkan total waktu tercepat dari Modul A ke Modul D.\n");
 
             int jawaban;
-            printf("\nJawaban Anda (dalam menit): ");
+            printf("\nJawaban Anda (dalam menit) : ");
             int cek = scanf("%d", &jawaban);
             bersihkanBuffer();
             if (cek != 1)
             {
-                printf("\nInput tidak valid. Masukkan angka bulat.\n");
+                printf("\n> Input tidak valid. Masukkan angka bulat.\n");
             }
             else if (user_cek_jawaban_dijkstra(jawaban))
             {
@@ -1525,7 +1637,7 @@ void user_simulate_preparation()
             break;
 
         default:
-            printf("\nPilihan tidak valid. Silakan pilih 1, 2, atau 3.\n");
+            printf("\n> Pilihan tidak valid. Silakan pilih 1, 2, atau 3.\n");
             break;
         }
     }
